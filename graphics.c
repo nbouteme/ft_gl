@@ -151,11 +151,11 @@ t_bary *bake_transform(const t_triangle *t, int *wr)
     res.bounds[3] = min(max3(t->a.h, t->b.h, t->c.h), 419);
 	return &res;
 }
-
+int count;
 static inline void render_pix(t_graphics *g, const t_bpoint *p, const t_v8i *w, t_v8i mask)
 {
 	int i;
-	float varinter[8][g->varying_s];
+	float varinter[g->varying_s / 4];
 	unsigned k;
 
 	i = 0;
@@ -163,14 +163,17 @@ static inline void render_pix(t_graphics *g, const t_bpoint *p, const t_v8i *w, 
 	{
 		if(mask[i] >= 0)
 		{
+			++count;
 			k = ~0;
-			while (++k < g->varying_s)
-				varinter[i][k] = w[0][i] * g->var[0][k]
-					+ w[1][i] * g->var[1][k]
-					+ w[2][i] * g->var[2][k];
+			/*int triArea = a * pa.x + b * pa.h + c*/
+			float t = 1.0f / (22050 * 2);
+			while (++k < g->varying_s / 4)
+				varinter[k] =  ((float)w[0][i] * t) * g->var[k]
+					+ ((float)w[1][i] * t) * g->var[3 + k]
+					+ ((float)w[2][i] * t) * g->var[6 + k];
 			g->shader->fragment(&(t_fragment_input){g->shader->uniforms, p},
-								g->draw_surface + 3 * (420 * p->h + p->w + i),
-								varinter + i);
+								&g->draw_surface[3 * (420 * p->h + p->w + i)],
+								varinter);
 		}
 		++i;
 	}
@@ -189,7 +192,7 @@ static inline void draw_triangle(t_graphics *g, const float coor[3][4])
 		maxy = min(max3(t.a.h, t.b.h, t.c.h), 419);
 	p.h = miny;
 	p.w = minx;
-
+	count = 0;
 	t_edge e01, e12, e20;
 	wr[0] = edge_init(&t.b, &t.c, &p, &e12);
 	wr[1] = edge_init(&t.c, &t.a, &p, &e20);
@@ -218,22 +221,22 @@ void draw_tris(t_graphics *g, t_u64 n)
 	t_u64 i;
 	t_u64 max;
 	float coor[3][4];
-	float var[3][g->varying_s];
+	float var[(g->varying_s >> 2) * 3];
 
 	i = 0;
 	max = n * 3;
-	g->var = var;
+	g->var = &var[0];
 	while (i < max)
 	{
 		g->shader->vertex(&(t_vertex_input){i, g->shader->uniforms,
 					(char*)g->buffer_data + (i * g->s_elem)}, coor[0],
-			var[0]);
+			&var[0]);
 		g->shader->vertex(&(t_vertex_input){i + 1, g->shader->uniforms,
 					(char*)g->buffer_data + ((i + 1) * g->s_elem)}, coor[1],
-			var[1]);
+			&var[g->varying_s >> 2]);
 		g->shader->vertex(&(t_vertex_input){i + 2, g->shader->uniforms,
 					(char*)g->buffer_data + ((i + 2) * g->s_elem)}, coor[2],
-			var[2]);
+			&var[g->varying_s >> 1]);
 		draw_triangle(g, coor);
 		i += 3;
 	}

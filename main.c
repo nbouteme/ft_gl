@@ -26,26 +26,35 @@ t_mat2x2 inv_mat2x2(t_mat2x2 a);
 
 float *matmul2(float ti[2][2], float v[2]);
 
+void	*readraw(int fd)
+{
+	void	*buf;
+	void	*tmp;
+	void	*ret;
+	t_u64	n;
+	t_u64	total;
+
+	total = 0;
+	buf = ft_memalloc(64);
+	ret = 0;
+	tmp = ret;
+	while ((n = read(fd, buf, 64)) > 0)
+	{
+		ft_bzero(buf + n, 64 - n);
+		ret = realloc(ret, total + n);
+		tmp = ret + total;
+		ft_memcpy(tmp, buf, n);
+		total += n;
+	}
+	free(buf);
+	return (ret);
+}
+
+#include "gfx.h"
+#include <fcntl.h>
+
 int		main()
 {
-/*	float a[3][2] =
-	{
-		{ 210.0f, 105.0f },
-		{ 315.0f, 315.0f },
-		{ 105.0f, 315.0f }
-		};*/
-/*	float t[2][2] =
-	{
-		{ 105.0f, 105.0f - 315.0f },
-		{ 210.0f, 315.0f - 315.0f }
-	};
-	t_mat2x2 r = inv_mat2x2(&t);
-	float coefs[3];
-	float p[2] = {125, 205};
-	float s3[2] = { 105.0f, 315.0f };
-	memcpy(coefs, matmul2(*r, (float[2]){p[0] - s3[0], p[1] - s3[1]}), sizeof(float) << 1);
-	coefs[2] = 1.0f - coefs[0] - coefs[1];
-	return (*r)[0][0];
-*/
+	//g_cube = readraw(open("/home/mirai/kek", O_RDONLY));
 	run_display(new_display());
 }

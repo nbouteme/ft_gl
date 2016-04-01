@@ -89,7 +89,7 @@ typedef struct	s_vertex_output
 typedef void(*t_vertex_shader)(const t_vertex_input *vertex_in,
 							   float position[4], void *varying);
 typedef void(*t_fragment_shader)(const t_fragment_input *vertex_in,
-								 float fragment[4], void *varying);
+								 float fragment[3], void *varying);
 
 typedef struct	s_shader
 {
@@ -112,7 +112,7 @@ typedef struct				s_graphics
 	t_shader				*shader;
 	t_point					dim;
 	unsigned				color;
-	float					(*var)[];
+	float					*var;
 }							t_graphics;
 
 typedef struct				s_sparse_model
@@ -144,5 +144,13 @@ void						draw_line_bare(t_graphics *g, t_point a, t_point b);
 t_drawpara					*draw_para_ctl();
 void						draw_tris(t_graphics *g, t_u64 n);
 
+
+typedef struct	s_vert_attr
+{
+	float		xy[3];
+	float		color[3];	
+}				t_vert_attr;
+
+extern t_vert_attr *g_cube;
 
 #endif

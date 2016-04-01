@@ -30,6 +30,7 @@ void	present(t_graphics *g)
 		g->fb[i] = (int)(g->draw_surface[j] * 255) << 16
 			| (int)(g->draw_surface[j + 1] * 255) << 8
 			| (int)(g->draw_surface[j + 2] * 255);
+		g->fb[i] |= 0xFF000000;
 		++i;
 		j += 3;
 	}

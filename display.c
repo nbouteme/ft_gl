@@ -17,16 +17,12 @@
 
 void draw_triangle(t_graphics *g, const t_triangle *t);
 
-typedef struct	s_vert_attr
-{
-	float		xy[3];
-	float		color[3];	
-}				t_vert_attr;
+t_vert_attr *g_cube;
 
 typedef struct
 {
 	float outcolor[3];
-} t_varying;
+} __attribute__((packed)) t_varying;
 
 void identity_shader(const t_vertex_input *in, float pos[4], void *varying)
 {
@@ -38,7 +34,7 @@ void identity_shader(const t_vertex_input *in, float pos[4], void *varying)
 	memcpy(va->outcolor, attr->color, sizeof(float) * 3);
 }
 
-void white_shader(const t_fragment_input *in, float frag[4], void *varying)
+void white_shader(const t_fragment_input *in, float frag[3], void *varying)
 {
 	(void)in;
 	(void)varying;
@@ -59,6 +55,7 @@ void		redraw(t_display *d)
 {
 	t_vert_attr tri[3];
 	t_shader s;
+
 	memcpy(&tri, &(t_vert_attr[3])
 			{
 				(t_vert_attr){{ 0.0f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
@@ -66,58 +63,13 @@ void		redraw(t_display *d)
 				(t_vert_attr){{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
 			}, sizeof(tri));
 	
-/*	memcpy(&tri, &(t_vert_attr[36])
-			  {
-				  (t_vert_attr){{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-
-				  (t_vert_attr){{-0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-
-				  (t_vert_attr){{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-
-				  (t_vert_attr){{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-
-				  (t_vert_attr){{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-
-				  (t_vert_attr){{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-				  (t_vert_attr){{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-			  }, sizeof(tri));
-	*/
 	static int ret = 0;
 	++ret;
 	s.uniforms = &ret;
 	s.vertex = &identity_shader;
 	s.fragment = &white_shader;
 	d->g->shader = &s;
-	d->g->varying_s = 0;
+	d->g->varying_s = sizeof(t_varying);
 	buffer_va(d->g, tri, 3, sizeof(*tri));
 	clock_t a = clock(), b;
 	draw_tris(d->g, 1);
