@@ -6,7 +6,7 @@
 /*   By: nbouteme <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/01/13 18:50:11 by nbouteme          #+#    #+#             */
-/*   Updated: 2016/02/06 04:27:19 by nbouteme         ###   ########.fr       */
+/*   Updated: 2016/04/01 16:13:39 by nbouteme         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ t_graphics	*new_graphics(t_display *d)
 	max = g->dim.w * g->dim.h;
 	ft_memset(g->fb, 0, max << 2);
 	g->z = malloc(4 * max);
-	g->draw_surface = malloc(12 * max);
+	g->draw_surface = ft_memalloc(12 * max);
 	while (i < max)
 		g->z[i++] = 0x3F800000;
 	g->color = 0x00FFFFFF;
@@ -95,7 +95,7 @@ static void tri_project_o(const float t[3][4], t_triangle *ret)
 	ret->c.w = (t[2][0] * 0.5f + 0.5f) * 420;
 	ret->c.h = (0.5f - t[2][1] * 0.5f) * 420;
 }
-
+/*
 static inline int bcenter(const t_triangle *t, const t_bpoint *p, float *w, int *val)
 {
     float den;
@@ -108,7 +108,7 @@ static inline int bcenter(const t_triangle *t, const t_bpoint *p, float *w, int 
     w[0] = 1.0f - w[1] - w[2];
 	return (w[0] >= 0 && w[1] >= 0 && w[2] >= 0);
 }
-
+*/
 typedef float	(*t_mat2x2)[2][2];
 
 t_mat2x2 inv_mat2x2(t_mat2x2 a)
@@ -146,31 +146,30 @@ t_bary *bake_transform(const t_triangle *t, int *wr)
 	res.vstep[1] = t->c.w - t->b.w;
 	res.vstep[2] = t->a.w - t->c.w;
     res.bounds[0] = max(min3(t->a.w, t->b.w, t->c.w), 0);
-    res.bounds[1] = max(min3(t->a.h, t->b.h, t->c.h), 0);	
+    res.bounds[1] = max(min3(t->a.h, t->b.h, t->c.h), 0);
     res.bounds[2] = min(max3(t->a.w, t->b.w, t->c.w), 419);
     res.bounds[3] = min(max3(t->a.h, t->b.h, t->c.h), 419);
 	return &res;
 }
-int count;
-static inline void render_pix(t_graphics *g, const t_bpoint *p, const t_v8i *w, t_v8i mask)
+
+static inline void render_pix(t_graphics *g, const t_bpoint *p, const t_v8i *w, float ooarea)
 {
 	int i;
 	float varinter[g->varying_s / 4];
 	unsigned k;
+	t_v8i mask;
 
+	mask = w[0] | w[1] | w[2];
 	i = 0;
 	while (i < 8)
 	{
 		if(mask[i] >= 0)
 		{
-			++count;
 			k = ~0;
-			/*int triArea = a * pa.x + b * pa.h + c*/
-			float t = 1.0f / (22050 * 2);
 			while (++k < g->varying_s / 4)
-				varinter[k] =  ((float)w[0][i] * t) * g->var[k]
-					+ ((float)w[1][i] * t) * g->var[3 + k]
-					+ ((float)w[2][i] * t) * g->var[6 + k];
+				varinter[k] =  ((float)w[0][i] * ooarea) * g->var[k]
+					+ ((float)w[1][i] * ooarea) * g->var[3 + k]
+					+ ((float)w[2][i] * ooarea) * g->var[6 + k];
 			g->shader->fragment(&(t_fragment_input){g->shader->uniforms, p},
 								&g->draw_surface[3 * (420 * p->h + p->w + i)],
 								varinter);
@@ -184,7 +183,7 @@ static inline void draw_triangle(t_graphics *g, const float coor[3][4])
 	t_triangle t;
 	t_v8i wr[3];
 	t_bpoint p;
-
+	float ooarea;
 	tri_project_o(coor, &t);
 	int minx = max(min3(t.a.w, t.b.w, t.c.w), 0),
 		miny = max(min3(t.a.h, t.b.h, t.c.h), 0),
@@ -192,11 +191,12 @@ static inline void draw_triangle(t_graphics *g, const float coor[3][4])
 		maxy = min(max3(t.a.h, t.b.h, t.c.h), 419);
 	p.h = miny;
 	p.w = minx;
-	count = 0;
+
 	t_edge e01, e12, e20;
 	wr[0] = edge_init(&t.b, &t.c, &p, &e12);
 	wr[1] = edge_init(&t.c, &t.a, &p, &e20);
 	wr[2] = edge_init(&t.a, &t.b, &p, &e01);
+	ooarea = 1.0f / wr[0][0];
 	p.h--;
 	while (++p.h < maxy)
 	{
@@ -204,8 +204,7 @@ static inline void draw_triangle(t_graphics *g, const float coor[3][4])
 		p.w = minx - 8;
 		while((p.w += 8) < maxx)
 		{
-			t_v8i mask = w[0] | w[1] | w[2];
-			render_pix(g, &p, w, mask);
+			render_pix(g, &p, w, ooarea);
 			w[0] += e12.stepx;
 			w[1] += e20.stepx;
 			w[2] += e01.stepx;

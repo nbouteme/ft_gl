@@ -6,7 +6,7 @@
 #    By: nbouteme <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/11/23 11:08:14 by nbouteme          #+#    #+#              #
-#    Updated: 2015/12/08 12:51:41 by nbouteme         ###   ########.fr        #
+#    Updated: 2016/04/01 14:07:47 by nbouteme         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -36,10 +36,11 @@ endif
 UNIQ := $(shell mktemp)
 $(shell make -s -C libft OBUILDLIBS="$(OBUILDLIBS)" > $(UNIQ))
 include $(UNIQ)
+
 INCDIRS += -Ilibft/includes
 $(eval LIBDIRS += $(addprefix -L,$(LDEP)))
 $(eval LIBS += $(DEP))
-all: 
+all:
 	$(foreach dep,$(PDEP), $(if $(shell make -C $(dep) CFLAGS=$(CFLAGS) &> /dev/null), $(eval )))
 	$(MAKE) $(NAME)
 %.o: %.c
@@ -48,7 +49,7 @@ all:
 
 $(NAME): $(OBJ)
 	@$(ECHO) "\033[0;34m--------------------------------"
-	$(CC) -o $(NAME) $(WFLAGS) $(OBJ) $(CFLAGS) $(LIBDIRS) $(addprefix -l,$(LIBS)) $(INCDIRS) $(SUPF) -fwhole-program
+	$(CC) -o $(NAME) $(WFLAGS) $(OBJ) $(CFLAGS) $(LIBDIRS) $(addprefix -l,$(LIBS)) $(INCDIRS) $(SUPL) -fwhole-program
 	@$(ECHO) "\033[0;31m[✓] Linked C executable" $(NAME)
 clean:
 	@/bin/rm -rf $(OBJ)

@@ -6,7 +6,7 @@
 /*   By: nbouteme <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/01/13 18:51:15 by nbouteme          #+#    #+#             */
-/*   Updated: 2016/02/06 04:11:52 by nbouteme         ###   ########.fr       */
+/*   Updated: 2016/04/01 15:39:51 by nbouteme         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void	present(t_graphics *g)
 		g->fb[i] = (int)(g->draw_surface[j] * 255) << 16
 			| (int)(g->draw_surface[j + 1] * 255) << 8
 			| (int)(g->draw_surface[j + 2] * 255);
-		g->fb[i] |= 0xFF000000;
+		g->fb[i] &= 0xFFFFFF;
 		++i;
 		j += 3;
 	}
@@ -42,6 +42,4 @@ void	clear_graphics(t_graphics *g)
 	int max;
 	max = g->dim.w * g->dim.h;
 	ft_memset(g->draw_surface, 0, max * 12);
-/*	while (i < max)
-	g->z[i++] = 0x3F800000;*/
 }

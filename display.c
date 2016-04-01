@@ -6,7 +6,7 @@
 /*   By: nbouteme <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/01/13 19:17:17 by nbouteme          #+#    #+#             */
-/*   Updated: 2016/02/06 06:28:35 by nbouteme         ###   ########.fr       */
+/*   Updated: 2016/04/01 16:13:55 by nbouteme         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void identity_shader(const t_vertex_input *in, float pos[4], void *varying)
 	t_vert_attr *attr;
 
 	attr = in->attribute;
-	memcpy(pos, (float[]){attr->xy[0], attr->xy[1], attr->xy[2], 1.0f}, sizeof(float) << 2);
+	ft_memcpy(pos, (float[]){attr->xy[0], attr->xy[1], attr->xy[2], 1.0f}, sizeof(float) << 2);
 	t_varying *va = varying;
 	memcpy(va->outcolor, attr->color, sizeof(float) * 3);
 }
@@ -56,13 +56,13 @@ void		redraw(t_display *d)
 	t_vert_attr tri[3];
 	t_shader s;
 
-	memcpy(&tri, &(t_vert_attr[3])
+	ft_memcpy(&tri, &(t_vert_attr[3])
 			{
-				(t_vert_attr){{ 0.0f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-				(t_vert_attr){{ 0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-				(t_vert_attr){{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+				(t_vert_attr){{ 0.0f,  0.75f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+				(t_vert_attr){{ 0.75f, -0.75f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+				(t_vert_attr){{-0.75f, -0.75f, 0.0f}, {0.0f, 0.0f, 1.0f}},
 			}, sizeof(tri));
-	
+
 	static int ret = 0;
 	++ret;
 	s.uniforms = &ret;
@@ -86,7 +86,6 @@ int			disp_expose(t_display *d)
 
 int			disp_handle_key(t_display *d)
 {
-	clear_graphics(d->g);
 	redraw(d);
 	return (0);
 }

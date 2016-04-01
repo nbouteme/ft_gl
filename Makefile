@@ -6,7 +6,7 @@
 #    By: nbouteme <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/11/23 11:08:14 by nbouteme          #+#    #+#              #
-#    Updated: 2015/12/08 12:51:41 by nbouteme         ###   ########.fr        #
+#    Updated: 2016/04/01 14:07:39 by nbouteme         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -21,7 +21,7 @@ UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 SUPF += -lm -Lminilibx -lmlx -lX11 -lXext
 else
-OPTS += -lm -Lminilibx -lmlx -framework OpenGL -framework AppKit
+SUPL += -lm -lmlx -framework OpenGL -framework AppKit
 endif
 
 #OPTS = -g
