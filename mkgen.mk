@@ -49,7 +49,7 @@ all:
 
 $(NAME): $(OBJ)
 	@$(ECHO) "\033[0;34m--------------------------------"
-	$(CC) -o $(NAME) $(WFLAGS) $(OBJ) $(CFLAGS) $(LIBDIRS) $(addprefix -l,$(LIBS)) $(INCDIRS) $(SUPF) -fwhole-program
+	$(CC) -o $(NAME) $(WFLAGS) $(OBJ) $(CFLAGS) $(LIBDIRS) $(addprefix -l,$(LIBS)) $(INCDIRS) $(SUPF) -fwhole-program $(SDF)
 	@$(ECHO) "\033[0;31m[✓] Linked C executable" $(NAME)
 clean:
 	@/bin/rm -rf $(OBJ)

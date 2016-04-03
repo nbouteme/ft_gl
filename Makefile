@@ -11,17 +11,18 @@
 #******************************************************************************#
 
 NAME = fdf
-#OPTS =	-O3 -march=native -mtune=native -ffinite-math-only -ftree-vectorize\
+OPTS =	-O3 -march=native -mtune=native -ffinite-math-only -ftree-vectorize\
 	-funsafe-math-optimizations -fno-math-errno -ffast-math -mavx -mmmx -mfpmath=sse\
 
-OPTS = -g -mavx -mmmx
+#OPTS = -g -mavx -mmmx
 
 UNAME := $(shell uname)
 #$(shell make -s -C minilibx)
 ifeq ($(UNAME), Linux)
 SUPF += -lm -Lminilibx -lmlx -lX11 -lXext
 else
-SUPL += -lm -lmlx -framework OpenGL -framework AppKit
+SUPF += -lm -lmlx -framework OpenGL -framework AppKit
+SDF += -lm -lmlx -framework OpenGL -framework AppKit
 endif
 
 #OPTS = -g

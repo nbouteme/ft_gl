@@ -6,7 +6,7 @@
 /*   By: nbouteme <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/01/13 19:28:59 by nbouteme          #+#    #+#             */
-/*   Updated: 2016/02/06 05:44:21 by nbouteme         ###   ########.fr       */
+/*   Updated: 2016/04/03 12:08:18 by nbouteme         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ t_display	*new_display()
 	ret->dim = (t_point) {420, 420, 0};
 	ret->win = mlx_new_window(ret->conn, ret->dim.w, ret->dim.h, "Software Rasterizer");
 	ret->g = new_graphics(ret);
+	set_key_handlers(ret);
 	mlx_loop_hook(ret->conn, &event_loop, ret);
 	mlx_expose_hook(ret->win, &disp_expose, ret);
 	mlx_do_key_autorepeaton(ret->conn);

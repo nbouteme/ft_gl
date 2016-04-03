@@ -1,6 +1,7 @@
 #include "ft_math.h"
 #include <string.h>
 #include <math.h>
+#include <libft/std.h>
 
 const t_mat4x4 *mulm4m4(const t_mat4x4 a, const t_mat4x4 b)
 {
@@ -13,16 +14,16 @@ const t_mat4x4 *mulm4m4(const t_mat4x4 a, const t_mat4x4 b)
 	i = 0;
 	while (i < 4)
 	{
-		k = 0;
-		while (k < 4)
+		j = 0;
+		while (j < 4)
 		{
-			j = 0;
-			while (j < 4)
+			k = 0;
+			while (k < 4)
 			{
-				ret[i][j] += a[i][k] * b[k][j];
-				++j;
+				ret[i][j] += b[i][k] * a[k][j];
+				++k;
 			}
-			++k;
+			++j;
 		}
 		++i;
 	}
@@ -54,10 +55,10 @@ const t_mat4x4 *idm4()
 {
 	static __thread t_mat4x4 ret =
 		{
-			{ 1.0f, 0.0f, 0.0f, 0.0f },
-			{ 0.0f, 1.0f, 0.0f, 0.0f },
-			{ 0.0f, 0.0f, 1.0f, 0.0f },
-			{ 0.0f, 0.0f, 0.0f, 1.0f }
+			{ 0.4f, 0.0f, 0.0f, 0.0f },
+			{ 0.0f, 0.4f, 0.0f, 0.0f },
+			{ 0.0f, 0.0f, 0.4f, 0.0f },
+			{ 0.0f, 0.0f, 0.0f, 0.4f }
 		};
 	return (&ret);
 }
@@ -70,21 +71,21 @@ const t_mat4x4 *perspective(float fov, float ar, float near, float far)
 
 	dist = far - near;
 	tanf2 = tanf(fov * 0.5f);
-	memcpy(ret, (t_mat4x4)
+	ft_memcpy(ret, (t_mat4x4)
 		{
 			{ 1.0f / (ar * tanf2), 0.0f, 0.0f, 0.0f },
 			{ 0.0f, 1.0f / tanf2, 0.0f, 0.0f },
 			{ 0.0f, 0.0f, -(near + far) / dist, -1.0f },
-			{ 0.0f, 0.0f, -(2 * near * far), 1.0f }
+			{ 0.0f, 0.0f, -(2 * near * far) / dist, 0.0f }
 		}, sizeof(ret));
-	return (&ret);	
+	return (&ret);
 }
 
 float dotv3(const t_vec3 a, const t_vec3 b)
 {
 	float ret;
 	unsigned i;
-	
+
 	ret = 0;
 	i = 0;
 	while (i < 3)
@@ -109,7 +110,7 @@ const t_vec3 *subv3(const t_vec3 a, const t_vec3 b)
 		ret[i] = a[i] - b[i];
 		++i;
 	}
-	return (&ret);	
+	return (&ret);
 }
 
 const t_vec3 *crossv3(const t_vec3 a, const t_vec3 b)
@@ -148,25 +149,30 @@ const t_mat4x4 *lookat(const t_vec3 eye, const t_vec3 target, const t_vec3 up)
 	t_vec3 s;
 	t_vec3 u;
 
-	memcpy(f, normalizev3(*subv3(target, eye)), sizeof(f));
-	memcpy(s, normalizev3(*crossv3(f, up)), sizeof(s));
-	memcpy(u, crossv3(s, f), sizeof(u));
-	memcpy(ret, (t_mat4x4)
+	ft_memcpy(f, normalizev3(*subv3(target, eye)), sizeof(f));
+	ft_memcpy(s, normalizev3(*crossv3(f, up)), sizeof(s));
+	ft_memcpy(u, crossv3(s, f), sizeof(u));
+	ft_memcpy(ret, (t_mat4x4)
 		   {
 			   {s[0], u[0], -f[0], 0.0f},
 			   {s[1], u[1], -f[1], 0.0f},
 			   {s[2], u[2], -f[2], 0.0f},
 			   {-dotv3(s, eye), -dotv3(u, eye), dotv3(f, eye), 1.0f}
 		   }, sizeof(ret));
-	return (&ret);	
+	return (&ret);
 }
-
-int main(int argc, char *argv[])
+/*
+int main()
 {
-	t_mat4x4 a;
-	memcpy(a, lookat((t_vec3){0.1f, 0.1f, 1.0f},
+	t_mat4x4 a, b, c;
+	t_vec4 d;
+	ft_memcpy(a, lookat((t_vec3){0.1f, 0.1f, 1.0f},
 					 (t_vec3){0.0f, 0.0f, 0.0f},
-					 (t_vec3){0.0f, 0.0f, 1.0f}), sizeof(t_mat4x4));
-    
+					 (t_vec3){0.0f, 0.0f, 1.0f}), sizeof(a));
+	ft_memcpy(b, perspective(M_PI / 4.0f, 1.0f, 1.0f, 1000.0f), sizeof(b));
+	ft_memcpy(c, mulm4m4(a, b), sizeof(c));
+	ft_memcpy(d, mulm4v4(c, (t_vec4){0.0f, 0.75f, 0.0f, 1.0f}), sizeof(d));
+
     return 0;
 }
+*/
