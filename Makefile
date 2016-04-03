@@ -11,10 +11,10 @@
 #******************************************************************************#
 
 NAME = fdf
-OPTS =	-O3 -march=native -mtune=native -ffinite-math-only -ftree-vectorize\
+#OPTS =	-O3 -march=native -mtune=native -ffinite-math-only -ftree-vectorize\
 	-funsafe-math-optimizations -fno-math-errno -ffast-math -mavx -mmmx -mfpmath=sse\
 
-#OPTS = -g -mavx -mmmx
+OPTS = -g -mavx -mmmx
 
 UNAME := $(shell uname)
 #$(shell make -s -C minilibx)

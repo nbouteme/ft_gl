@@ -144,10 +144,9 @@ void						draw_line_bare(t_graphics *g, t_point a, t_point b);
 t_drawpara					*draw_para_ctl();
 void						draw_tris(t_graphics *g, t_u64 n);
 
-
 typedef struct	s_vert_attr
 {
-	float		xy[3];
+	float		xyz[3];
 	float		color[3];	
 }				t_vert_attr;
 

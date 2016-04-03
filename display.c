@@ -24,12 +24,28 @@ typedef struct
 	float outcolor[3];
 } __attribute__((packed)) t_varying;
 
+#include "ft_math.h"
+
+typedef struct
+{
+	t_mat4x4 model;
+	t_mat4x4 view;
+	t_mat4x4 proj;
+} t_uni;
+
+t_uni unif = { 0 };
+
 void identity_shader(const t_vertex_input *in, float pos[4], void *varying)
 {
 	t_vert_attr *attr;
-
+	const t_uni *tran = in->uniform;
+	t_mat4x4 tmp;
+	
 	attr = in->attribute;
-	ft_memcpy(pos, (float[]){attr->xy[0], attr->xy[1], attr->xy[2], 1.0f}, sizeof(float) << 2);
+	ft_memcpy(tmp, *mulm4m4(tran->model, tran->view), sizeof(tmp));
+	ft_memcpy(pos, mulm4v4(*mulm4m4(tran->proj, tmp),
+						   (float[4]){attr->xyz[0], attr->xyz[1], attr->xyz[2], 1.0f}),
+			sizeof(float) << 2);
 	t_varying *va = varying;
 	memcpy(va->outcolor, attr->color, sizeof(float) * 3);
 }
@@ -62,10 +78,14 @@ void		redraw(t_display *d)
 				(t_vert_attr){{ 0.75f, -0.75f, 0.0f}, {1.0f, 0.0f, 0.0f}},
 				(t_vert_attr){{-0.75f, -0.75f, 0.0f}, {0.0f, 0.0f, 1.0f}},
 			}, sizeof(tri));
-
-	static int ret = 0;
-	++ret;
-	s.uniforms = &ret;
+	static float h = 1.0f;
+	memcpy(unif.model, idm4(), sizeof(t_mat4x4));
+	memcpy(unif.proj, perspective(M_PI / 4.0f, 1.0f, 1.0f, 1000.0f), sizeof(t_mat4x4));
+	memcpy(unif.view, lookat((t_vec3){0.1f, 0.1f, h},
+							 (t_vec3){0.0f, 0.0f, 0.0f},
+							 (t_vec3){0.0f, 0.0f, 1.0f}), sizeof(t_mat4x4));
+	h += 0.1f;
+	s.uniforms = &unif;
 	s.vertex = &identity_shader;
 	s.fragment = &white_shader;
 	d->g->shader = &s;
