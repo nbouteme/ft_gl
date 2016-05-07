@@ -148,7 +148,8 @@ typedef struct	s_vert_attr
 {
 	float		xyz[3];
 	float		color[3];	
-}				t_vert_attr;
+	float		uv[2];	
+} __attribute__((packed)) t_vert_attr;
 
 extern t_vert_attr *g_cube;
 

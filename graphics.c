@@ -95,6 +95,7 @@ static void tri_project_o(const float t[3][4], t_triangle *ret)
 	ret->c.w = (t[2][0] * 0.5f + 0.5f) * 420;
 	ret->c.h = (0.5f - t[2][1] * 0.5f) * 420;
 }
+
 /*
 static inline int bcenter(const t_triangle *t, const t_bpoint *p, float *w, int *val)
 {
@@ -109,18 +110,8 @@ static inline int bcenter(const t_triangle *t, const t_bpoint *p, float *w, int 
 	return (w[0] >= 0 && w[1] >= 0 && w[2] >= 0);
 }
 */
-typedef float	(*t_mat2x2)[2][2];
 
-t_mat2x2 inv_mat2x2(t_mat2x2 a)
-{
-	static float res[2][2];
-	float det = 1.0f / (((*a)[0][0] * (*a)[1][1]) - ((*a)[0][1] * (*a)[1][0]));
-	res[0][0] =  (*a)[1][1] * det;
-	res[0][1] = -(*a)[0][1] * det;
-	res[1][0] = -(*a)[1][0] * det;
-	res[1][1] =  (*a)[0][0] * det;
-	return &res;
-}
+typedef float	(*t_mat2x2)[2][2];
 
 typedef struct	s_bary
 {
@@ -159,11 +150,17 @@ static inline void render_pix(t_graphics *g, const t_bpoint *p, const t_v8i *w, 
 	unsigned k;
 	t_v8i mask;
 
-	mask = w[0] | w[1] | w[2];
+	i = 0;
+	while(i < 8)
+	{
+		mask[i]  = w[0][i] >= 0 && w[1][i] >= 0 && w[2][i] >= 0;
+		mask[i]  |= w[0][i] <  0 && w[1][i] <  0 && w[2][i] <  0;
+		++i;
+	}
 	i = 0;
 	while (i < 8)
 	{
-		if(mask[i] >= 0)
+		if(mask[i] > 0)
 		{
 			k = ~0;
 			while (++k < g->varying_s / 4)
@@ -177,7 +174,7 @@ static inline void render_pix(t_graphics *g, const t_bpoint *p, const t_v8i *w, 
 		++i;
 	}
 }
-
+#include <stdio.h>
 static inline void draw_triangle(t_graphics *g, const float coor[3][4])
 {
 	t_triangle t;
@@ -196,7 +193,10 @@ static inline void draw_triangle(t_graphics *g, const float coor[3][4])
 	wr[0] = edge_init(&t.b, &t.c, &p, &e12);
 	wr[1] = edge_init(&t.c, &t.a, &p, &e20);
 	wr[2] = edge_init(&t.a, &t.b, &p, &e01);
-	ooarea = 1.0f / wr[0][0];
+	int triArea = (t.a.w * (t.b.h - t.c.h) +
+				   t.b.w * (t.c.h - t.a.h) +
+				   t.c.w * (t.a.h - t.b.h));
+	ooarea = 1.0f / triArea;
 	p.h--;
 	while (++p.h < maxy)
 	{

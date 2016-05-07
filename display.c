@@ -43,10 +43,12 @@ void identity_shader(const t_vertex_input *in, float pos[4], void *varying)
 	t_mat4x4 tmp;
 
 	attr = in->attribute;
-	ft_memcpy(tmp, *mulm4m4(tran->model, tran->view), sizeof(tmp));
-	ft_memcpy(pos, mulm4v4(*mulm4m4(tran->proj, tmp),
+	ft_memcpy(tmp, *mulm4m4(tran->proj, tran->view), sizeof(tmp));
+	ft_memcpy(pos, mulm4v4(*mulm4m4(tmp, tran->model),
 						   (float[4]){attr->xyz[0], attr->xyz[1], attr->xyz[2], 1.0f}),
-			sizeof(float) << 2);
+			sizeof(float[4]));
+	pos[0] /= pos[3];
+	pos[1] /= pos[3];
 	pos[2] /= pos[3];
 	pos[3] /= pos[3];
 	t_varying *va = varying;
@@ -70,32 +72,72 @@ void buffer_va(t_graphics *g, void *data, t_u64 n, t_u64 s)
 
 #include <time.h>
 
-t_vec3 h = { 0.13f, 0.13f, 1.0f };
+t_vec3 h = { 1.0f, 1.0f, 1.0f };
 
 void		redraw(t_display *d)
 {
-	t_vert_attr tri[3];
+	t_vert_attr tri[36];
 	t_shader s;
 
-	ft_memcpy(&tri, &(t_vert_attr[3])
-			{
-				(t_vert_attr){{ 0.0f,  0.75f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-				(t_vert_attr){{ 0.75f, -0.75f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-				(t_vert_attr){{-0.75f, -0.75f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+	ft_memcpy(&tri, &(float[])
+			  {
+				  -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+				  	  0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+					  0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+					  0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+					  -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+				  -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+
+					  -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+					  0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+					  0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+					  0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+					  -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+					  -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+
+					  -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+					  -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+				  -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+				  -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+					  -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+					  -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+
+					  0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+					  0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+				  	  0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+				  	  0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+					  0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+					  0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+
+				  -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+				  	  0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+					  0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+					  0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+					  -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+				  -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+
+					  -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+					  0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+					  0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+					  0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+					  -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+					  -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
 			}, sizeof(tri));
+
 	memcpy(unif.model, idm4(), sizeof(t_mat4x4));
-	memcpy(unif.proj, perspective(M_PI / 4.0f, 1.0f, 1.0f, 1000.0f), sizeof(t_mat4x4));
+	memcpy(unif.proj, perspective(M_PI / 4.0f, 1.0f, 1.0f, 100.0f), sizeof(t_mat4x4));
 	memcpy(unif.view, lookat(h,
 							 (t_vec3){0.0f, 0.0f, 0.0f},
 							 (t_vec3){0.0f, 0.0f, 1.0f}), sizeof(t_mat4x4));
+
 	s.uniforms = &unif;
 	s.vertex = &identity_shader;
 	s.fragment = &white_shader;
 	d->g->shader = &s;
 	d->g->varying_s = sizeof(t_varying);
-	buffer_va(d->g, tri, 3, sizeof(*tri));
+	buffer_va(d->g, tri, 36, sizeof(*tri));
 	clock_t a = clock(), b;
-	draw_tris(d->g, 1);
+	draw_tris(d->g, 12);
 	b = clock();
 	printf("ft: %zu\n", b - a);
 }
@@ -112,17 +154,17 @@ int			disp_handle_key(t_display *d)
 	if (is_key_pressed(ESCAPE))
 		exit(42);
 	if (is_key_pressed(UP))
-		h[1] += 0.5f;
+		h[1] += 0.01f;
 	if (is_key_pressed(DOWN))
-		h[1] -= 0.5f;
+		h[1] -= 0.01f;
 	if (is_key_pressed(LEFT))
-		h[0] += 0.5f;
+		h[0] += 0.01f;
 	if (is_key_pressed(RIGHT))
-		h[0] -= 0.5f;
+		h[0] -= 0.01f;
 	if (is_key_pressed(KP_ADD))
-		h[2] += 0.5f;
+		h[2] += 0.01f;
 	if (is_key_pressed(KP_SUBTRACT))
-		h[2] -= 0.5f;
+		h[2] -= 0.01f;
 
 	clear_graphics(d->g);
 	redraw(d);
